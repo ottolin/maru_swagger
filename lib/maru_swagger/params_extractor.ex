@@ -68,12 +68,26 @@ defmodule MaruSwagger.ParamsExtractor do
       }
     end
 
+    defp do_format_param("atom", param) do
+      cond do
+	param.values != nil ->
+	  %{type: "string", enum: param.values, description: param.desc || "", required: param.required}
+	true ->
+	  %{type: "string", description: param.desc || "", required: param.required}
+      end
+    end
+
     defp do_format_param({:list, type}, param) do
       %{type: "array", items: do_format_param(type, param)}
     end
 
     defp do_format_param(type, param) do
-      %{description: param.desc || "", type: type, required: param.required}
+      cond do
+	param.default == nil ->
+	  %{description: param.desc || "", type: type, required: param.required}
+        true ->
+	  %{description: param.desc || "", type: type, required: param.required, default: param.default}
+      end
     end
   end
 
