@@ -51,7 +51,9 @@ defmodule MaruSwagger.ParamsExtractor do
     end
 
     defp do_format_param("float", param) do
-      %{type: "number", format: "float", description: param.desc || "", required: param.required}
+      {%{type: "number", format: "float", description: param.desc || "", required: param.required}, param}
+      |> try_put_in_map(:default)
+      |> try_put_in_map(:example)
     end
 
     defp do_format_param("map", param) do
@@ -69,20 +71,10 @@ defmodule MaruSwagger.ParamsExtractor do
     end
 
     defp do_format_param("atom", param) do
-      rv = cond do
-        param.values != nil ->
-          %{type: "string", enum: param.values, description: param.desc || "", required: param.required}
-        true ->
-          %{type: "string", description: param.desc || "", required: param.required}
-      end
-
-      rv = cond do
-        param.default != nil ->
-          Map.put_new(rv, :default, param.default)
-        true ->
-          rv
-      end
-      rv
+      {%{type: "string", description: param.desc || "", required: param.required}, param}
+      |> try_put_in_map(:values, :enum)
+      |> try_put_in_map(:default)
+      |> try_put_in_map(:example)
     end
 
     defp do_format_param({:list, type}, param) do
@@ -90,13 +82,23 @@ defmodule MaruSwagger.ParamsExtractor do
     end
 
     defp do_format_param(type, param) do
+      {%{description: param.desc || "", type: type, required: param.required}, param}
+      |> try_put_in_map(:default)
+      |> try_put_in_map(:example)
+    end
+
+    defp try_put_in_map({map, param}, key) do
+      try_put_in_map({map, param}, key, key)
+    end
+
+    defp try_put_in_map({map, param}, key, target_key) do
+      value = get_in(param, [key])
       cond do
-        param.default == nil ->
-          %{description: param.desc || "", type: type, required: param.required}
-        true ->
-          %{description: param.desc || "", type: type, required: param.required, default: param.default}
+        value == nil -> {map, param}
+        true -> {Map.put_new(map, target_key, value), param}
       end
     end
+
   end
 
   defmodule NonGetFormDataParamsGenerator do
