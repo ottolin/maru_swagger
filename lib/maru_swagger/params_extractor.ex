@@ -51,9 +51,11 @@ defmodule MaruSwagger.ParamsExtractor do
     end
 
     defp do_format_param("float", param) do
-      {%{type: "number", format: "float", description: param.desc || "", required: param.required}, param}
+      {rv, _} = {%{type: "number", format: "float", description: param.desc || "", required: param.required}, param}
       |> try_put_in_map(:default)
       |> try_put_in_map(:example)
+
+      rv
     end
 
     defp do_format_param("map", param) do
@@ -71,10 +73,12 @@ defmodule MaruSwagger.ParamsExtractor do
     end
 
     defp do_format_param("atom", param) do
-      {%{type: "string", description: param.desc || "", required: param.required}, param}
+      {rv, _} = {%{type: "string", description: param.desc || "", required: param.required}, param}
       |> try_put_in_map(:values, :enum)
       |> try_put_in_map(:default)
       |> try_put_in_map(:example)
+
+      rv
     end
 
     defp do_format_param({:list, type}, param) do
@@ -82,9 +86,11 @@ defmodule MaruSwagger.ParamsExtractor do
     end
 
     defp do_format_param(type, param) do
-      {%{description: param.desc || "", type: type, required: param.required}, param}
+      {rv, _} = {%{description: param.desc || "", type: type, required: param.required}, param}
       |> try_put_in_map(:default)
       |> try_put_in_map(:example)
+
+      rv
     end
 
     defp try_put_in_map({map, param}, key) do

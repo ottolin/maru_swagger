@@ -26,7 +26,7 @@ defmodule MaruSwagger.Mixfile do
   defp deps do
     [
       {:maru, github: "ottolin/maru"},
-      {:jason, "~> 1.0", optional: true},
+      {:jason, "~> 1.0"},
       {:cowboy, "~> 2.1", optional: true},
       {:ex_doc, "~> 0.14", only: :docs}
     ]
