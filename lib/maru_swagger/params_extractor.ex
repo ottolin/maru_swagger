@@ -92,7 +92,7 @@ defmodule MaruSwagger.ParamsExtractor do
     end
 
     defp try_put_in_map({map, param}, key, target_key) do
-      value = get_in(param, [key])
+      value = Map.get(param, key)
       cond do
         value == nil -> {map, param}
         true -> {Map.put_new(map, target_key, value), param}
